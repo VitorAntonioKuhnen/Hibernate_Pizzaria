@@ -14,7 +14,5 @@ import org.hibernate.Session;
  *
  * @author vitor.kuhnen
  */
-public interface PedidoDao extends BaseDao<Pedido, Long>{
-    List<Pedido> askPerName (String nome, Session session) throws HibernateException;
-    
+public interface PedidoDao extends BaseDao<Pedido, Long> {
 }

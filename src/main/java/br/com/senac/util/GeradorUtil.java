@@ -26,7 +26,6 @@ public class GeradorUtil {
         for (int i = 0; i < qtde; i++) {
             indice = (int) (Math.random() * 10);
             numeroGerado += indice;
-            //numeroGerado = numeroGerado + indice;
         }
         return numeroGerado;
     }
@@ -134,8 +133,10 @@ public class GeradorUtil {
     }
 
     public static Pedido gerarPedido() {
-        Date data = new Date();        
-        Pedido pedido = new Pedido(0, BigDecimal.ZERO, data);
+        Date data = new Date();
+        
+        BigDecimal bigDec = new BigDecimal(gerarNumero(3));
+        Pedido pedido = new Pedido(Integer.parseInt(gerarNumero(2)), bigDec, data);
 
         return pedido;
     }

@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
 import static br.com.senac.util.GeradorUtil.*;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Date;
 import org.hibernate.query.Query;
 
 /**
@@ -33,40 +34,64 @@ public class PedidoDaoImplTest {
     @Test
     public void testSalvar() {
         System.out.println("Salvar");
+        
+        Date data = new Date();
+        BigDecimal bigDec = new BigDecimal(gerarNumero(3));
+        
         ClienteDaoImplTest cdit = new ClienteDaoImplTest();
-
-        Pedido pedido = gerarPedido();
-        pedido.setCliente(buscarClienteBd());
+        pedido = new Pedido(Integer.parseInt(gerarNumero(2)), bigDec, data);
+        
+        pedido.setCliente(cdit.buscarClienteBd());
         session = HibernateUtil.abrirConexao();
         pedidoDao.saveOrAlter(pedido, session);
         session.close();
-        
+
         assertNotNull(pedido.getId());
 
     }
 
 //    @Test
-    public void testPesquisarPorId() {
-        System.out.println("pesquisarPorId");
-        Long id = null;
-        Session session = null;
-        PedidoDaoImpl instance = new PedidoDaoImpl();
-        Pedido expResult = null;
-        Pedido result = instance.pesquisarPorId(id, session);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
+    public void testAlterar() {
+        System.out.println("Alterar");
+        BigDecimal bigDec = new BigDecimal(gerarNumero(2));
+        buscarPedidoBd();
+        pedido.setValorTotal(bigDec);
+        session = HibernateUtil.abrirConexao();
+        pedidoDao.saveOrAlter(pedido, session);
+        session.close();
+        
+        session = HibernateUtil.abrirConexao();
+        Pedido pedidoAlt = pedidoDao.pesquisarPorId(pedido.getId(), session);
+        session.close();
+        assertEquals(pedidoAlt.getId(), pedido.getId());
+
+        System.out.println("ID: " + pedido.getId() + " Valor: R$" + pedido.getValorTotal() + "\nID: " + pedidoAlt.getId() + " Valor: R$" + pedidoAlt.getValorTotal());
+    }
+    
+//    @Test
+    public void testExcluir(){
+        System.out.println("Excluir");
+        buscarPedidoBd();
+        session = HibernateUtil.abrirConexao();
+        pedidoDao.excluir(pedido, session);
+        
+        Pedido pedidoExc = pedidoDao.pesquisarPorId(pedido.getId(), session);
+        session.close();
+        
+        assertNull(pedidoExc);
+        
     }
 
 //    @Test
-    public void testAskPerName() {
-        System.out.println("askPerName");
-        String nome = "";
-        Session session = null;
-        PedidoDaoImpl instance = new PedidoDaoImpl();
-        List<Pedido> expResult = null;
-        List<Pedido> result = instance.askPerName(nome, session);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
+    public void testPesquisarPorId() {
+        System.out.println("pesquisarPorId");
+        buscarPedidoBd();
+        session = HibernateUtil.abrirConexao();
+        Pedido pedidoAskID = pedidoDao.pesquisarPorId(pedido.getId(), session);
+        session.close();
+        
+        assertNotNull(pedidoAskID);
+        System.out.println(pedidoAskID.getId() + " " + pedidoAskID.getCliente().getNome() + " " + pedidoAskID.getValorTotal());
     }
 
     public Cliente buscarClienteBd() {
@@ -76,6 +101,19 @@ public class PedidoDaoImplTest {
         session.close();
         Collections.shuffle(clientes);
         return clientes.get(0);
+    }
+
+    public Pedido buscarPedidoBd() {
+        session = HibernateUtil.abrirConexao();
+        Query<Pedido> consult = session.createQuery("from Pedido p");
+        List<Pedido> pedidos = consult.getResultList();
+        session.close();
+        if (pedidos.isEmpty()) {
+            testSalvar();
+        } else {
+            pedido = pedidos.get(0);
+        }
+        return pedido;
     }
 
 }

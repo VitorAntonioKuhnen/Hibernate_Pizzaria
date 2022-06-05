@@ -26,6 +26,13 @@ public class FornecedorDaoImpl extends BaseDaoImpl<Fornecedor, Long> implements 
         consult.setParameter("nome","%" + nome + "%");
         return consult.getResultList();
     }
+    
+    @Override
+    public Fornecedor askPerTell(String telefone, Session session) throws HibernateException {
+        Query<Fornecedor> consult = session.createQuery("from Fornecedor f where f.telefone = :telefone");
+        consult.setParameter("telefone", telefone);
+        return consult.getSingleResult();
+    }
 
     
 }

@@ -5,7 +5,6 @@
  */
 package br.com.senac.dao;
 
-//import br.com.senac.entidade.Usuario;
 import br.com.senac.entidade.Cliente;
 import br.com.senac.entidade.Endereco;
 import br.com.senac.entidade.Fornecedor;

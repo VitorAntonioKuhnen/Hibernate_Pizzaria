@@ -16,4 +16,6 @@ import org.hibernate.Session;
  */
 public interface FornecedorDao extends  BaseDao<Fornecedor, Long>{
     List<Fornecedor> askPerName(String nome, Session session) throws HibernateException;
+    
+    Fornecedor askPerTell(String telefone, Session session) throws HibernateException;
 }

@@ -27,7 +27,6 @@ public class ClienteDaoImplTest {
     private Session session;
     private Cliente cliente;
     private ClienteDao clienteDao;
-    private Endereco endereco;
 
     public ClienteDaoImplTest() {
 
@@ -37,8 +36,7 @@ public class ClienteDaoImplTest {
 //    @Test
     public void testSalvar() {
         System.out.println("Salvar");
-
-        cliente = new Cliente(false, "Vítor", "Vito@gmail.com", "898778988");
+        cliente = new Cliente(false, gerarNome(), gerarNome() + "@gmail.com", gerarNumero(9));
         List<Endereco> enderecos = new ArrayList<>();
         enderecos.add(gerarEndereco());
         cliente.setEnderecos(enderecos);
@@ -46,68 +44,88 @@ public class ClienteDaoImplTest {
         for (Endereco endereco : enderecos) {
             endereco.setPessoa(cliente);
         }
-        
-        List<Pedido> pedidos = new ArrayList<>();
-        pedidos.add(gerarPedido());
-        cliente.setPedidos(pedidos);
-        for (Pedido pedido : pedidos) {
-            pedido.setCliente(cliente);
-        }
-        
+
         session = HibernateUtil.abrirConexao();
         clienteDao.saveOrAlter(cliente, session);
         session.close();
         assertNotNull(cliente.getId());
 
     }
+    
+//    @Test
+    public void testAlterar(){
+        System.out.println("Alterar");
+        buscarClienteBd();
+        cliente.setEmail(gerarNome() + "@gmail.com");
+        session = HibernateUtil.abrirConexao();
+        clienteDao.saveOrAlter(cliente, session);
+        session.close();
+        
+        assertNotNull(cliente.getId());
+        System.out.println("Email: " + cliente.getEmail());
+    }
+    
+//    @Test
+    public void testExcluir(){
+        System.out.println("Excluir");
+        buscarClienteBd();
+        session = HibernateUtil.abrirConexao();
+        clienteDao.excluir(cliente, session);
+        
+        Cliente clienteExc = clienteDao.pesquisarPorId(cliente.getId(), session);
+        session.close();
+        assertNull(clienteExc);
+    }
 
 //    @Test
     public void testPesquisarPorId() {
         System.out.println("pesquisarPorId");
-        Long id = null;
-        Session session = null;
-        ClienteDaoImpl instance = new ClienteDaoImpl();
-        Cliente expResult = null;
-        Cliente result = instance.pesquisarPorId(id, session);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
+        buscarClienteBd();
+        session = HibernateUtil.abrirConexao();
+        Cliente clienteAskId = clienteDao.pesquisarPorId(cliente.getId(), session);
+        session.close();
+        
+        assertNotNull(clienteAskId);
+        System.out.println(clienteAskId.getId() + " " + clienteAskId.getNome());
     }
 
 //    @Test
     public void testAskPerName() {
         System.out.println("askPerName");
-        String nome = "";
-        Session session = null;
-        ClienteDaoImpl instance = new ClienteDaoImpl();
-        List<Cliente> expResult = null;
-        List<Cliente> result = instance.askPerName(nome, session);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
-    }
-    
-    @Test
-    public void testAskPerTel(){
-        System.out.println("askPerTel");
-        clienteBd();
+        buscarClienteBd();
+        session = HibernateUtil.abrirConexao();
+        List<Cliente> clienteName = clienteDao.askPerName(cliente.getNome(), session);
+        session.close();
+        assertFalse(clienteName.isEmpty());
         
+        // Descobrir como pegar o endereço da lista de endereço
+        System.out.println(cliente.getId() + " " + cliente.getNome());
+        
+    }
+
+    
+
+    @Test
+    public void testAskPerTel() {
+        System.out.println("askPerTel");
+        buscarClienteBd();
+
         session = HibernateUtil.abrirConexao();
         Cliente clienteTel = clienteDao.askPerTell(cliente.getTelefone(), session);
         session.close();
-        
+
         assertNotNull(clienteTel);
         assertTrue(!clienteTel.getPedidos().isEmpty());
-        
+
         System.out.println(cliente.getNome());
     }
-    
-    
-    public Cliente clienteBd(){
-        String hql = "from Cliente c";
+
+    public Cliente buscarClienteBd() {
         session = HibernateUtil.abrirConexao();
-        Query<Cliente> consult = session.createQuery(hql);
+        Query<Cliente> consult = session.createQuery("from Cliente c");
         List<Cliente> clientes = consult.getResultList();
         session.close();
-        if (clientes.isEmpty()){
+        if (clientes.isEmpty()) {
             testSalvar();
         } else {
             cliente = clientes.get(0);
